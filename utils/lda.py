@@ -2,7 +2,6 @@ from typing import List, Tuple
 import nltk
 from gensim.corpora.dictionary import Dictionary
 from gensim.models import LdaModel
-from collections import defaultdic
 
 nltk.download('punkt', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
