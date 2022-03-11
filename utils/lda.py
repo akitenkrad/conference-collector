@@ -11,7 +11,7 @@ class LDA(object):
         self.num_topics = num_topics
         texts = [LDA.tokenize(text) for text in texts]
         self.dictionary = Dictionary(texts)
-        corpus = [self.dictionary.doc2bow(text) for text in self.texts]
+        corpus = [self.dictionary.doc2bow(text) for text in texts]
         self.lda = LdaModel(corpus=corpus, num_topics=self.num_topics, id2word=self.dictionary)
 
     @classmethod
