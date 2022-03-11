@@ -105,5 +105,5 @@ class NeurIPS_2021(object):
             keywords = paper['keywords']
             authors = paper['authors']
             pdf_url = paper['pdf_url']
-            res.append(Paper(title, summary, keywords, authors, pdf_url))
+            res.append(Paper(title, authors, summary, keywords, pdf_url))
         return res
