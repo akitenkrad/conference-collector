@@ -1,3 +1,4 @@
+import sys
 from os import PathLike
 from pathlib import Path
 import time
@@ -5,6 +6,9 @@ import numpy as np
 import urllib.request
 from PIL import Image
 from wordcloud import WordCloud, STOPWORDS
+
+def is_notebook():
+    return 'google.colab' in sys.modules or 'ipykernel' in sys.modules
 
 def urlopen(url:str, timeout:float=5.0, retry:int=5, sleep:float=1.0):
     '''open url

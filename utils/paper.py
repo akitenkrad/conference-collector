@@ -9,6 +9,7 @@ class Paper(object):
         self.__keywords = keywords
         self.__pdf_url = pdf_url
         self.__topic = -1
+        self.__score = -1.0
         self.__scores = {}
     
     def __str__(self):
@@ -38,6 +39,7 @@ class Paper(object):
     def scores(self) -> Dict[int, float]:
         return self.__scores
 
-    def set_topic(self, topic:int, scores:List[Tuple[int, float]]):
+    def set_topic(self, topic:int, score:float, scores:List[Tuple[int, float]]):
         self.__topic = topic
+        self.__score = score
         self.__scores = {score[0]: score[1] for score in scores}

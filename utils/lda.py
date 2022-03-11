@@ -3,13 +3,20 @@ import nltk
 from gensim.corpora.dictionary import Dictionary
 from gensim.models import LdaModel
 
+from utils.utils import is_notebook
+
+if is_notebook():
+    from tqdm.notebook import tqdm
+else:
+    from tqdm import tqdm
+
 nltk.download('punkt', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
 
 class LDA(object):
     def __init__(self, texts:List[str], num_topics=10):
         self.num_topics = num_topics
-        texts = [LDA.tokenize(text) for text in texts]
+        texts = [LDA.tokenize(text) for text in tqdm(texts, desc='tokenize...', leave=False)]
         self.dictionary = Dictionary(texts)
         corpus = [self.dictionary.doc2bow(text) for text in texts]
         self.lda = LdaModel(corpus=corpus, num_topics=self.num_topics, id2word=self.dictionary)
