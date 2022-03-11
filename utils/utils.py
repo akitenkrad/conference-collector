@@ -1,5 +1,10 @@
+from os import PathLike
+from pathlib import Path
 import time
+import numpy as np
 import urllib.request
+from PIL import Image
+from wordcloud import WordCloud, STOPWORDS
 
 def urlopen(url:str, timeout:float=5.0, retry:int=5, sleep:float=1.0):
     '''open url
@@ -27,3 +32,18 @@ def urlopen(url:str, timeout:float=5.0, retry:int=5, sleep:float=1.0):
             if retry <= retry_count:
                 raise ex
     return response
+
+def word_cloud(input_text:str, out_path:PathLike):
+    mask = np.array(Image.open('/content/drive/MyDrive/Cloud/Temp/img_haguremetal.png').convert('L'), 'f')
+    mask = (mask > 128) * 255
+    wc = WordCloud(
+        font_path='fonts/Utatane-Regular.ttf',
+        background_color='white',
+        max_words=200,
+        stopwords=set(STOPWORDS),
+        contour_width=3,
+        contour_color='steelblue',
+        mask=mask
+    )
+    wc.generate(input_text)
+    wc.to_file(str(out_path))

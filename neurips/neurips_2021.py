@@ -1,7 +1,9 @@
+from typing import List
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 from utils.utils import urlopen
+from utils.paper import Paper
 
 class NeurIPS_2021(object):
     def __init__(self):
@@ -93,3 +95,15 @@ class NeurIPS_2021(object):
         paper['date'] = soup.find('span', attrs={'class': 'date item'}).text.strip()
 
         return paper
+
+    @classmethod
+    def to_papers(cls, papers:list) -> List[Paper]:
+        res = []
+        for paper in papers:
+            title = paper['title']
+            summary = paper['abstract']
+            keywords = paper['keywords']
+            authors = paper['authors']
+            pdf_url = paper['pdf_url']
+            res.append(Paper(title, summary, keywords, authors, pdf_url))
+        return res
