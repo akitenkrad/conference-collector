@@ -38,11 +38,11 @@ def urlopen(url:str, timeout:float=5.0, retry:int=5, sleep:float=1.0):
     return response
 
 def word_cloud(input_text:str, out_path:PathLike):
-    mask_path = Path(__file__) / '../images/mask.png'
+    mask_path = Path(__file__).parent / '../images/mask.png'
     mask = np.array(Image.open(str(mask_path)).convert('L'), 'f')
     mask = (mask > 128) * 255
     wc = WordCloud(
-        font_path=str(Path(__file__) / '../fonts/Utatane-Regular.ttf'),
+        font_path=str(Path(__file__).parent / '../fonts/Utatane-Regular.ttf'),
         background_color='white',
         max_words=200,
         stopwords=set(STOPWORDS),
