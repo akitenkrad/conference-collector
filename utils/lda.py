@@ -43,7 +43,7 @@ class LDA(object):
             score (float): score of main topic
         '''
         words = LDA.tokenize(text)
-        topics = self.lda[self.dicrionary.doc2bow(words)]
+        topics = self.lda[self.dictionary.doc2bow(words)]
         main_topic = max(topics, key=lambda x: x[1])[0]
         score = max(topics, key=lambda x: x[1])[0]
         return topics, main_topic, score
