@@ -27,7 +27,7 @@ class Report(object):
         lda = LDA([paper.title + '\n' + paper.summary for paper in papers], num_topics=n_topics)
         for paper in tqdm(papers):
             topics, main_topic, score = lda.transform(paper.title + '\n' + paper.summary)
-            paper.set_topic(main_topic, score, topics)
+            paper.set_topic(n_topics, main_topic, score, topics)
 
         return lda, papers
 
