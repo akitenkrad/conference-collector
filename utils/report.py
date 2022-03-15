@@ -29,12 +29,7 @@ class Report(object):
             topics, main_topic, score = lda.transform(paper.title + '\n' + paper.summary)
             paper.set_topic(main_topic, score, topics)
 
-        topics = {}
-        for paper in papers:
-            if paper.topic not in topics:
-                topics[paper.topic] = {'papers': []}
-            topics[paper.topic]['papers'].append(paper)
-        return lda, topics
+        return lda, papers
 
     @classmethod
     def report(cls, report_title:str, out_dir:PathLike, papers:List[Paper], n_topics:int=10):
@@ -43,7 +38,13 @@ class Report(object):
         report_file = out_dir / 'report.md'
 
         # analyze
-        lda, topics = Report.analyze(papers, n_topics)
+        lda, papers = Report.analyze(papers, n_topics)
+
+        topics = {}
+        for paper in papers:
+            if paper.topic not in topics:
+                topics[paper.topic] = {'papers': []}
+            topics[paper.topic]['papers'].append(paper)
 
         with open(report_file, 'wt', encoding='utf-8') as wf:
             wf.write(Report.s(f'# {report_title}'))
