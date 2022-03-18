@@ -17,6 +17,8 @@ else:
 nltk.download('punkt', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
 
+Corpus = List[List[Tuple[int, int]]]
+
 class LDA(BaseEstimator):
     def __init__(self, n_topics:int=10, alpha:float=0.01, coherence='u_mass', metrics='perplexity'):
         '''Latent Dirichlet Allocation
@@ -35,11 +37,12 @@ class LDA(BaseEstimator):
         self.alpha = alpha
         self.coherence = coherence
         self.metrics = metrics
+        self.corpus = None
         self.dictionary:Dictionary = None
         self.lda:LdaModel = None
 
     def __str__(self):
-        return f'<LDA n_topics={self.n_topics} alpha={self.alpha}>'
+        return f'<LDA n_topics={self.n_topics} alpha={self.alpha} coherence={self.coherence} metrics={self.metrics}>'
     def __repr__(self):
         return self.__str__()
 
@@ -53,10 +56,9 @@ class LDA(BaseEstimator):
                 res_words.append(word)
         return res_words
 
-    def get_corpus(self, texts:List[str]) -> List[Tuple[int, int]]:
+    def prepare_corpus(self, texts:List[str]) -> Corpus:
         texts = [LDA.tokenize(text) for text in tqdm(texts, desc='tokenize...', leave=False)]
-        if self.dictionary is None:
-            self.dictionary = Dictionary(texts)
+        self.dictionary = Dictionary(texts)
         corpus = [self.dictionary.doc2bow(text) for text in texts]
         return corpus
 
@@ -73,12 +75,11 @@ class LDA(BaseEstimator):
                 setattr(self, name, value)
         return self
 
-    def fit(self, texts:List[str]):
-        corpus = self.get_corpus(texts)
+    def fit(self, corpus:Corpus):
         self.lda = LdaModel(corpus=corpus, num_topics=self.n_topics, alpha=self.alpha, id2word=self.dictionary)
         return self
     
-    def transform(self ,text:str) -> Tuple[List[Tuple[int, float]], int, float]:
+    def transform(self ,doc:List[Tuple[int, int]]) -> Tuple[List[Tuple[int, float]], int, float]:
         '''apply LDA
 
         Args:
@@ -89,25 +90,23 @@ class LDA(BaseEstimator):
             main_topic (int): main topic
             score (float): score of main topic
         '''
-        words = LDA.tokenize(text)
-        topics = self.lda[self.dictionary.doc2bow(words)]
+        topics = self.lda[doc]
         main_topic = max(topics, key=lambda x: x[1])[0]
         score = max(topics, key=lambda x: x[1])[0]
         return topics, main_topic, score
 
-    def predict(self, texts:List[str]) -> Tuple[List[Tuple[int, float]], int, float]:
+    def predict(self, corpus:Corpus) -> Tuple[List[Tuple[int, float]], int, float]:
         topics, main_topic, score = [], [], []
-        for text in texts:
-            _topics, _main_topic, _score = self.transform(text)
+        for doc in corpus:
+            _topics, _main_topic, _score = self.transform(doc)
             topics.append(_topics)
             main_topic.append(_main_topic)
             score.append(_score)
         return topics, main_topic, score
 
-    def score(self, texts:List[str]) -> Tuple[float, float]:
+    def score(self, corpus:Corpus) -> float:
 
         if self.metrics == 'perplexity':
-            corpus = self.get_corpus(texts)
             log_perplexity = np.exp2(self.lda.log_perplexity(corpus))
             return log_perplexity
         elif self.metrics == 'coherence':
@@ -115,7 +114,6 @@ class LDA(BaseEstimator):
             coherence = cm.get_coherence()
             return coherence
         elif self.metrics == 'hybrid':
-            corpus = self.get_corpus(texts)
             log_perplexity = np.exp2(self.lda.log_perplexity(corpus))
             cm = CoherenceModel(model=self.lda, corpus=corpus, coherence=self.coherence)
             coherence = cm.get_coherence()
