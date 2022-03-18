@@ -66,7 +66,6 @@ class LDA(object):
                 setattr(self, name, value)
 
     def fit(self, texts:List[str]):
-        self.dictionary = Dictionary(texts)
         corpus = self.get_corpus(texts)
         self.lda = LdaModel(corpus=corpus, num_topics=self.num_topics, alpha=self.alpha, id2word=self.dictionary)
         return self
