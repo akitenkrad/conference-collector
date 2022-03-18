@@ -1,6 +1,7 @@
 from typing import List, Tuple, Any
 import numpy as np
 from sklearn.model_selection import GridSearchCV
+from sklearn.base import BaseEstimator
 import nltk
 from gensim.corpora.dictionary import Dictionary
 from gensim.models import LdaModel
@@ -16,7 +17,7 @@ else:
 nltk.download('punkt', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
 
-class LDA(object):
+class LDA(BaseEstimator):
     def __init__(self, n_topics:int=10, alpha:float=0.01, coherence='u_mass'):
         '''Latent Dirichlet Allocation
         
