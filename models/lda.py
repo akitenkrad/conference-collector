@@ -26,6 +26,7 @@ class LDA(BaseEstimator):
             alpha: alpha of LDA model
             coherence: method for CoherenceModel (u_mass/c_v/c_uci)
         '''
+        super().__init__()
         self.n_topics = n_topics
         self.alpha = alpha
         self.coherence = coherence
