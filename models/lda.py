@@ -17,8 +17,6 @@ else:
 nltk.download('punkt', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
 
-Corpus = List[List[Tuple[int, int]]]
-
 class LDA(BaseEstimator):
     def __init__(self, n_topics:int=10, alpha:float=0.01, coherence='u_mass', metrics='perplexity'):
         '''Latent Dirichlet Allocation
@@ -37,7 +35,6 @@ class LDA(BaseEstimator):
         self.alpha = alpha
         self.coherence = coherence
         self.metrics = metrics
-        self.corpus = None
         self.dictionary:Dictionary = None
         self.lda:LdaModel = None
 
@@ -56,8 +53,10 @@ class LDA(BaseEstimator):
                 res_words.append(word)
         return res_words
 
-    def prepare_corpus(self, texts:List[str]) -> Corpus:
-        texts = [LDA.tokenize(text) for text in tqdm(texts, desc='tokenize...', leave=False)]
+    def preprocess(self, texts:List[str]) -> List[str]:
+        return [LDA.tokenize(text) for text in tqdm(texts, desc='tokenize...', leave=False)]
+
+    def get_corpus(self, texts:List[str]) -> List[Tuple[int, int]]:
         self.dictionary = Dictionary(texts)
         corpus = [self.dictionary.doc2bow(text) for text in texts]
         return corpus
@@ -75,11 +74,12 @@ class LDA(BaseEstimator):
                 setattr(self, name, value)
         return self
 
-    def fit(self, corpus:Corpus):
+    def fit(self, texts:List[str]):
+        corpus = self.get_corpus(texts)
         self.lda = LdaModel(corpus=corpus, num_topics=self.n_topics, alpha=self.alpha, id2word=self.dictionary)
         return self
     
-    def transform(self ,doc:List[Tuple[int, int]]) -> Tuple[List[Tuple[int, float]], int, float]:
+    def transform(self ,text:List[str]) -> Tuple[List[Tuple[int, float]], int, float]:
         '''apply LDA
 
         Args:
@@ -90,21 +90,22 @@ class LDA(BaseEstimator):
             main_topic (int): main topic
             score (float): score of main topic
         '''
-        topics = self.lda[doc]
+        topics = self.lda[self.dictionary.doc2bow(text)]
         main_topic = max(topics, key=lambda x: x[1])[0]
         score = max(topics, key=lambda x: x[1])[0]
         return topics, main_topic, score
 
-    def predict(self, corpus:Corpus) -> Tuple[List[Tuple[int, float]], int, float]:
+    def predict(self, texts:List[List[str]]) -> Tuple[List[Tuple[int, float]], int, float]:
         topics, main_topic, score = [], [], []
-        for doc in corpus:
-            _topics, _main_topic, _score = self.transform(doc)
+        for text in texts:
+            _topics, _main_topic, _score = self.transform(text)
             topics.append(_topics)
             main_topic.append(_main_topic)
             score.append(_score)
         return topics, main_topic, score
 
-    def score(self, corpus:Corpus) -> float:
+    def score(self, texts:List[List[str]]) -> Tuple[float, float]:
+        corpus = self.get_corpus(texts)
 
         if self.metrics == 'perplexity':
             log_perplexity = np.exp2(self.lda.log_perplexity(corpus))
