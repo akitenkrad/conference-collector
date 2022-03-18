@@ -23,8 +23,8 @@ class Report(object):
         return f'\n- {text}  '
 
     @classmethod
-    def analyze(self, papers:List[Paper], n_topics:int):
-        lda = LDA([paper.title + '\n' + paper.summary for paper in papers], num_topics=n_topics)
+    def analyze(self, papers:List[Paper], n_topics:int=10, alpha:float=0.1):
+        lda = LDA([paper.title + '\n' + paper.summary for paper in papers], num_topics=n_topics, alpha=alpha)
         for paper in tqdm(papers):
             topics, main_topic, score = lda.transform(paper.title + '\n' + paper.summary)
             paper.set_topic(n_topics, main_topic, score, topics)
