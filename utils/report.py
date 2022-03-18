@@ -6,7 +6,7 @@ from nltk import FreqDist
 
 from utils.utils import is_notebook, word_cloud
 from utils.paper import Paper
-from utils.lda import LDA
+from models.lda import LDA
 
 if is_notebook():
     from tqdm.notebook import tqdm
