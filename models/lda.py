@@ -18,7 +18,7 @@ nltk.download('punkt', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
 
 class LDA(BaseEstimator):
-    def __init__(self, n_topics:int=10, alpha:float=0.01, coherence='u_mass'):
+    def __init__(self, n_topics:int=10, alpha:float=0.01, coherence='u_mass', metrics='perplexity'):
         '''Latent Dirichlet Allocation
         
         Args:
@@ -27,9 +27,14 @@ class LDA(BaseEstimator):
             coherence: method for CoherenceModel (u_mass/c_v/c_uci)
         '''
         super().__init__()
+
+        assert coherence in ['u_mass', 'c_v', 'c_uci'], f"Invalid coherence: {coherence}. coherence = ['u_mass', 'c_v', 'c_uvi']"
+        assert metrics in ['perplexity', 'coherence', 'hybrid'], f"Invalid metrics: {metrics}. metrics = ['perplexity', 'coherence', 'hybrid']"
+
         self.n_topics = n_topics
         self.alpha = alpha
         self.coherence = coherence
+        self.metrics = metrics
         self.dictionary:Dictionary = None
         self.lda:LdaModel = None
 
@@ -100,12 +105,18 @@ class LDA(BaseEstimator):
         return topics, main_topic, score
 
     def score(self, texts:List[str]) -> Tuple[float, float]:
-        # perplexity
-        corpus = self.get_corpus(texts)
-        log_perplexity = np.exp2(self.lda.log_perplexity(corpus))
 
-        # coherence
-        cm = CoherenceModel(model=self.lda, corpus=corpus, coherence=self.coherence)
-        coherence = cm.get_coherence()
-
-        return log_perplexity, coherence
+        if self.metrics == 'perplexity':
+            corpus = self.get_corpus(texts)
+            log_perplexity = np.exp2(self.lda.log_perplexity(corpus))
+            return log_perplexity
+        elif self.metrics == 'coherence':
+            cm = CoherenceModel(model=self.lda, corpus=corpus, coherence=self.coherence)
+            coherence = cm.get_coherence()
+            return coherence
+        elif self.metrics == 'hybrid':
+            corpus = self.get_corpus(texts)
+            log_perplexity = np.exp2(self.lda.log_perplexity(corpus))
+            cm = CoherenceModel(model=self.lda, corpus=corpus, coherence=self.coherence)
+            coherence = cm.get_coherence()
+            return (log_perplexity + coherence) / 2.0
