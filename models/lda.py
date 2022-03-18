@@ -66,6 +66,7 @@ class LDA(BaseEstimator):
         for name, value in params.items():
             if name in ['n_topics', 'alpha', 'coherence']:
                 setattr(self, name, value)
+        return self
 
     def fit(self, texts:List[str]):
         corpus = self.get_corpus(texts)
