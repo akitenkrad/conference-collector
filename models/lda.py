@@ -48,6 +48,8 @@ class LDA(object):
 
     def get_corpus(self, texts:List[str]) -> List[Tuple[int, int]]:
         texts = [LDA.tokenize(text) for text in tqdm(texts, desc='tokenize...', leave=False)]
+        if self.dictionary is None:
+            self.dictionary = Dictionary(texts)
         corpus = [self.dictionary.doc2bow(text) for text in texts]
         return corpus
 
