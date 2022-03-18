@@ -53,14 +53,14 @@ class LDA(object):
         corpus = [self.dictionary.doc2bow(text) for text in texts]
         return corpus
 
-    def get_params(self):
+    def get_params(self, *args, **kwargs):
         return {
             'n_topics': self.n_topics,
             'alpha': self.alpha,
             'coherence': self.coherence,
         }
     
-    def set_params(self, **params):
+    def set_params(self, *args, **params):
         for name, value in params.items():
             if name in ['n_topics', 'alpha', 'coherence']:
                 setattr(self, name, value)
