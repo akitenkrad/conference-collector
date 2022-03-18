@@ -96,7 +96,7 @@ class LDA(object):
             score.append(_score)
         return topics, main_topic, score
 
-    def score(self, texts:List[str], y:Any) -> Tuple[float, float]:
+    def score(self, texts:List[str]) -> Tuple[float, float]:
         # perplexity
         corpus = self.get_corpus(texts)
         log_perplexity = np.exp2(self.lda.log_perplexity(corpus))
