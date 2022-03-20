@@ -53,6 +53,7 @@ class LDA(BaseEstimator):
                 res_words.append(word)
         return res_words
 
+    @classmethod
     def preprocess(self, texts:List[str]) -> List[str]:
         return [LDA.tokenize(text) for text in tqdm(texts, desc='tokenize...', leave=False)]
 
@@ -108,8 +109,8 @@ class LDA(BaseEstimator):
         corpus = self.get_corpus(texts)
 
         if self.metrics == 'perplexity':
-            log_perplexity = np.exp2(self.lda.log_perplexity(corpus))
-            return log_perplexity
+            perplexity = np.exp2(self.lda.log_perplexity(corpus))
+            return perplexity
         elif self.metrics == 'coherence':
             cm = CoherenceModel(model=self.lda, corpus=corpus, coherence=self.coherence)
             coherence = cm.get_coherence()
